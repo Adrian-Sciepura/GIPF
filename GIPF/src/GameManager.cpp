@@ -2,7 +2,6 @@
 
 GameManager::GameManager()
 {
-	functions.insert(element("LOAD_GAME_BOARD", &GameManager::loadBorad));
 	board = nullptr;
 	setup();
 }
@@ -14,21 +13,45 @@ GameManager::~GameManager()
 void GameManager::start()
 {
 	string input;
-	while (cin >> input)
+	char buffer[100];
+	char key = NULL;
+	int counter = 0;
+
+	while (key != '\xff')
 	{
-		try
+		key = getchar();
+		buffer[counter] = key;
+		counter++;
+
+		if(key == ' ' || key == '\n' || key == '\xff')
 		{
-			if(functions.find(input) != functions.end())
-				(this->*functions[input])();
+			counter--;
+			buffer[counter] = '\0';
+			runAction(buffer, counter);
+			counter = 0;
 		}
-		catch (const MapLoadException& e)
+	}
+}
+
+void GameManager::runAction(char* buffer, int length)
+{
+	if (length < 7)
+		return;
+
+	try
+	{
+		if (strcmp(buffer, "LOAD_GAME_BOARD") == 0)
 		{
-			cout << e.what() << '\n';
+			loadBorad();
 		}
-		catch (...)
-		{
-			cout << "An unknown error occured\n";
-		}
+	}
+	catch (const MapLoadException& e)
+	{
+		cout << e.what() << '\n';
+	}
+	catch (...)
+	{
+		cout << "An unknown error occured\n";
 	}
 }
 
@@ -102,15 +125,15 @@ void GameManager::loadBorad()
 				}
 			}
 		}
+
 		if(counter != width - 2 * spaceLength || flag)
 			throw MapLoadException("WRONG_BOARD_ROW_LENGTH");
 	}
 
-	if (numberOfWhitePawnsOnBoard != numberOfWhitePawns - numberOfWhitePawnsInReserve)
+	if (numberOfWhitePawnsOnBoard > numberOfWhitePawns - numberOfWhitePawnsInReserve)
 		throw MapLoadException("WRONG_WHITE_PAWNS_NUMBER");
-	else if (numberOfBlackPawnsOnBoard != numberOfBlackPawns - numberOfBlackPawnsInReserve)
+	else if (numberOfBlackPawnsOnBoard > numberOfBlackPawns - numberOfBlackPawnsInReserve)
 		throw MapLoadException("WRONG_BLACK_PAWNS_NUMBER");
 
 	cout << "BOARD_STATE_OK\n";
-	
 }

@@ -5,6 +5,7 @@
 #include <functional>
 #include <string>
 #include <map>
+#include <string.h>
 
 #include "MapLoadException.h"
 
@@ -16,8 +17,8 @@ using std::map;
 class GameManager
 {
 private:
-	using managerFunction = void (GameManager::*)();
-	using element = std::pair<string, managerFunction>;
+	/*using managerFunction = void (GameManager::*)();
+	using element = std::pair<string, managerFunction>;*/
 
 	char** board;
 	int edgeLength;
@@ -32,8 +33,9 @@ private:
 	int numberOfBlackPawnsOnBoard;
 
 	bool isWhiteTurn;
-	map<string, managerFunction> functions;
+	//map<string, managerFunction> functions;
 
+	void runAction(char* buffer, int length);
 	void setup();
 	void loadBorad();
 
