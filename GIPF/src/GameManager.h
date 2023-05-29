@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "MapLoadException.h"
+#include "MoveException.h"
 
 using std::cout;
 using std::cin;
@@ -17,10 +18,11 @@ using std::map;
 class GameManager
 {
 private:
-	/*using managerFunction = void (GameManager::*)();
-	using element = std::pair<string, managerFunction>;*/
-
 	char** board;
+	int height;
+	int width;
+	char maxLetter;
+
 	int edgeLength;
 	int numberOfTriggerPawns;
 	
@@ -33,11 +35,13 @@ private:
 	int numberOfBlackPawnsOnBoard;
 
 	bool isWhiteTurn;
-	//map<string, managerFunction> functions;
 
 	void runAction(char* buffer, int length);
 	void setup();
-	void loadBorad();
+	void loadBoard();
+	void printBoard();
+	void move();
+	void getPosition(int& x, int& y, int letter, int number);
 
 public:
 	GameManager();
