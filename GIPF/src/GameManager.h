@@ -42,6 +42,7 @@ private:
 	void printBoard();
 	void move();
 	void getPosition(int& x, int& y, int letter, int number);
+	int checkRow(int startRow, int startColumn, int horizontalIterator, int verticalIterator);
 
 public:
 	GameManager();

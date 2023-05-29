@@ -120,14 +120,15 @@ void GameManager::loadBoard()
 	maxLetter = 'a' + (width + 4) / 2;
 
 	char temp = NULL;
-	bool flag = true;
 	int counter = 0;
+	int numberOfTooLongRows = 0;
+	int numberOfBlackPawnsInRow = 0;
+	int numberOfWhitePawnsInRow = 0;
 
 	getchar();
 	for (int i = 0; i < height; i++)
 	{
 		spaceLength = (i < edgeLength ? edgeLength - i - 1 : i - edgeLength + 1);
-		flag = true;
 		counter = 0;
 		int j = 0;
 
@@ -140,7 +141,11 @@ void GameManager::loadBoard()
 			if (j > width)
 			{
 				if (temp != ' ')
-					throw MapLoadException("WRONG_BOARD_ROW_LENGTH");
+				{
+					cout << "WRONG_BOARD_ROW_LENGTH\n\n";
+					return;
+					//throw MapLoadException("WRONG_BOARD_ROW_LENGTH");
+				}
 				continue;
 			}
 
@@ -169,14 +174,65 @@ void GameManager::loadBoard()
 			j++;
 		}
 
+		board[i + 1][spaceLength] = '+';
+		board[i + 1][width + 3 - spaceLength] = '+';
+
 		if(counter != (i < edgeLength ? edgeLength + i : height - (i - edgeLength + 1)))
-			throw MapLoadException("WRONG_BOARD_ROW_LENGTH");
+		{
+			cout << "WRONG_BOARD_ROW_LENGTH\n\n";
+			return;
+			//throw MapLoadException("WRONG_BOARD_ROW_LENGTH");
+		}
+	
+		if (numberOfWhitePawnsInRow >= numberOfTriggerPawns)
+			numberOfTooLongRows++;
+		if(numberOfBlackPawnsInRow >= numberOfTriggerPawns)
+			numberOfTooLongRows++;
 	}
 
 	if (numberOfWhitePawnsOnBoard > numberOfWhitePawns - numberOfWhitePawnsInReserve)
-		throw MapLoadException("WRONG_WHITE_PAWNS_NUMBER");
+	{
+		cout << "WRONG_WHITE_PAWNS_NUMBER\n\n";
+		return;
+		//throw MapLoadException("WRONG_WHITE_PAWNS_NUMBER");
+	}
 	else if (numberOfBlackPawnsOnBoard > numberOfBlackPawns - numberOfBlackPawnsInReserve)
-		throw MapLoadException("WRONG_BLACK_PAWNS_NUMBER");
+	{
+		cout << "WRONG_BLACK_PAWNS_NUMBER\n\n";
+		return;
+		//throw MapLoadException("WRONG_BLACK_PAWNS_NUMBER");
+	}
+
+	char tempLetter = 'b';
+	int tempRow = 0;
+	int tempColumn = 0;
+
+	for(int i = 1; i < height; i++)
+	{
+		spaceLength = (i < edgeLength ? edgeLength - i + 2 : i - edgeLength + 2);
+		numberOfTooLongRows += checkRow(i, spaceLength, 2, 0);
+	}
+
+	for (int i = 0; i < height; i++)
+	{
+		temp = NULL;
+		getPosition(tempRow, tempColumn, tempLetter, 2);
+		numberOfWhitePawnsInRow = 0;
+		numberOfBlackPawnsInRow = 0;
+		numberOfTooLongRows += checkRow(tempRow, tempColumn, 1, -1);
+		numberOfTooLongRows += checkRow(tempRow, width + 3 - tempColumn, -1, -1);
+		tempLetter++;
+	}
+
+	if (numberOfTooLongRows != 0)
+	{
+		if(numberOfTooLongRows == 1)
+			cout << "ERROR_FOUND_1_ROW_OF_LENGTH_K\n\n";
+		else
+			cout << "ERROR_FOUND_" + std::to_string(numberOfTooLongRows) + "_ROWS_OF_LENGTH_K\n\n";
+		return;
+		//throw MapLoadException("ERROR_FOUND_" + std::to_string(numberOfTooLongRows) + "_ROW_OF_LENGTH_K");
+	}
 
 	cout << "BOARD_STATE_OK\n\n";
 }
@@ -202,6 +258,17 @@ void GameManager::printBoard()
 		cout << '\n';
 	}
 	cout << '\n';
+	
+	//for (int i = 0; i < height + 2; i++)
+	//{
+	//	for (int j = 0; j < width + 4; j++)
+	//	{
+	//		temp = board[i][j];
+	//		cout << temp;
+	//	}
+	//	cout << '\n';
+	//}
+	//cout << '\n';
 }
 
 void GameManager::move()
@@ -258,6 +325,9 @@ void GameManager::move()
 	int firstColumn, firstRow, secondColumn, secondRow;
 	getPosition(firstRow, firstColumn, startLetter, startNumber);
 	getPosition(secondRow, secondColumn, endLetter, endNumber);
+
+	//cout << "FIRST ROW: " << firstRow << " FIRST COLUMN: " << firstColumn << "\n";
+	//cout << "SECOND ROW: " << secondRow << " SECOND COLUMN: " << secondColumn << "\n";
 
 	int horizontalDirection = secondColumn - firstColumn;
 	int verticalDirection = secondRow - firstRow;
@@ -330,4 +400,37 @@ void GameManager::getPosition(int& x, int& y, int letter, int number)
 		y -= temp - number;
 		x += temp - number;
 	}
+}
+
+int GameManager::checkRow(int startRow, int startColumn, int horizontalIterator, int verticalIterator)
+{
+	char temp = NULL;
+	char previous = NULL;
+	int numberInRow = 1;
+	int counter = 0;
+	while (true)
+	{
+		temp = board[startRow][startColumn];
+
+		if (temp == '+')
+			break;
+		else if (temp == previous && temp != '_')
+			numberInRow++;
+		else
+		{
+			if (numberInRow >= numberOfTriggerPawns)
+				counter++;
+
+			numberInRow = 1;
+		}
+
+		previous = temp;
+		startRow += verticalIterator;
+		startColumn += horizontalIterator;
+	}
+
+	if (numberInRow >= numberOfTriggerPawns)
+		counter++;
+
+	return counter;
 }
