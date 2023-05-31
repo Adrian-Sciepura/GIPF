@@ -9,7 +9,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 9 12 W
@@ -21,7 +20,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 9 12 W
@@ -33,7 +31,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 11 W
@@ -45,7 +42,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 11 12 W
@@ -57,7 +53,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 16 15
 12 12 W
@@ -69,7 +64,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 9
 12 12 W
@@ -81,7 +75,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 15 12 W
@@ -93,7 +86,6 @@ B _ _ _ _ _ _
   _ _ _ _ _
    _ _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 15 15 W
@@ -105,7 +97,6 @@ _ _ _ _ _ _ _
   _ _ _ _ _
    _ _ _ _
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -117,7 +108,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -129,7 +119,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -141,7 +130,6 @@ B _ _ _ _ _ W _
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -153,7 +141,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B _
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -165,7 +152,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -177,7 +163,6 @@ B _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -189,7 +174,6 @@ _ _ _ _ _ _ W
   _ _ _ _ _
    W _ _ B
 
-PRINT_GAME_BOARD
 LOAD_GAME_BOARD
 4 4 15 15
 12 12 W
@@ -200,5 +184,3 @@ B _ _ _ _ _ W
  _ _ _ _ _ _
   _ _ _ _ _
    W _ _ B
-
-PRINT_GAME_BOARD
