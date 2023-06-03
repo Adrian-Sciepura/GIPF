@@ -2,23 +2,20 @@
 #define GAME_MANAGER_H
 
 #include <iostream>
-#include <functional>
 #include <string>
-#include <map>
 #include <string.h>
-
-#include "MapLoadException.h"
-#include "MoveException.h"
+#include <sstream>
 
 using std::cout;
 using std::cin;
 using std::string;
-using std::map;
+using std::istringstream;
 
 class GameManager
 {
 private:
 	char** board;
+	bool isMapLoaded;
 	int height;
 	int width;
 	char maxLetter;
@@ -38,11 +35,12 @@ private:
 
 	void runAction(char* buffer, int length);
 	void setup();
-	void loadBoard();
+	string loadBoard();
 	void printBoard();
-	void move();
+	string move();
 	void getPosition(int& x, int& y, int letter, int number);
-	int checkRow(int startRow, int startColumn, int horizontalIterator, int verticalIterator);
+	int checkRow(int startRow, int startColumn, int horizontalIterator, int verticalIterator, bool remove = false);
+	string captureThePawns(const string& who, const string& from, const string& to);
 
 public:
 	GameManager();

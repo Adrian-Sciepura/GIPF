@@ -6,6 +6,7 @@ GameManager::GameManager()
 	height = 0;
 	width = 0;
 	maxLetter = NULL;
+	isMapLoaded = false;
 	setup();
 }
 
@@ -47,27 +48,12 @@ void GameManager::runAction(char* buffer, int length)
 	if (length < 7)
 		return;
 
-	try
-	{
-		if (strcmp(buffer, "DO_MOVE") == 0)
-			move();
-		else if (strcmp(buffer, "LOAD_GAME_BOARD") == 0)
-			loadBoard();
-		else if (strcmp(buffer, "PRINT_GAME_BOARD") == 0)
-			printBoard();
-	}
-	catch (const MapLoadException& e)
-	{
-		cout << e.what() << "\n\n";
-	}
-	catch (const MoveException& e)
-	{
-		cout << e.what() << "\n\n";
-	}
-	catch (...)
-	{
-		cout << "AN UNKNOWN ERROR OCCURED\n\n";
-	}
+	if (strcmp(buffer, "DO_MOVE") == 0)
+		cout << move() << "\n\n";
+	else if (strcmp(buffer, "LOAD_GAME_BOARD") == 0)
+		cout << loadBoard() << "\n\n";
+	else if (strcmp(buffer, "PRINT_GAME_BOARD") == 0)
+		printBoard();
 }
 
 void GameManager::setup()
@@ -86,7 +72,7 @@ void GameManager::setup()
 	isWhiteTurn = true;
 }
 
-void GameManager::loadBoard()
+string GameManager::loadBoard()
 {
 	if (board != nullptr)
 	{
@@ -142,9 +128,8 @@ void GameManager::loadBoard()
 			{
 				if (temp != ' ')
 				{
-					cout << "WRONG_BOARD_ROW_LENGTH\n\n";
-					return;
-					//throw MapLoadException("WRONG_BOARD_ROW_LENGTH");
+					isMapLoaded = false;
+					return string("WRONG_BOARD_ROW_LENGTH");
 				}
 				continue;
 			}
@@ -179,9 +164,8 @@ void GameManager::loadBoard()
 
 		if(counter != (i < edgeLength ? edgeLength + i : height - (i - edgeLength + 1)))
 		{
-			cout << "WRONG_BOARD_ROW_LENGTH\n\n";
-			return;
-			//throw MapLoadException("WRONG_BOARD_ROW_LENGTH");
+			isMapLoaded = false;
+			return string("WRONG_BOARD_ROW_LENGTH");
 		}
 	
 		if (numberOfWhitePawnsInRow >= numberOfTriggerPawns)
@@ -192,15 +176,13 @@ void GameManager::loadBoard()
 
 	if (numberOfWhitePawnsOnBoard > numberOfWhitePawns - numberOfWhitePawnsInReserve)
 	{
-		cout << "WRONG_WHITE_PAWNS_NUMBER\n\n";
-		return;
-		//throw MapLoadException("WRONG_WHITE_PAWNS_NUMBER");
+		isMapLoaded = false;
+		return string("WRONG_WHITE_PAWNS_NUMBER");
 	}
 	else if (numberOfBlackPawnsOnBoard > numberOfBlackPawns - numberOfBlackPawnsInReserve)
 	{
-		cout << "WRONG_BLACK_PAWNS_NUMBER\n\n";
-		return;
-		//throw MapLoadException("WRONG_BLACK_PAWNS_NUMBER");
+		isMapLoaded = false;
+		return string("WRONG_BLACK_PAWNS_NUMBER");
 	}
 
 	char tempLetter = 'b';
@@ -226,19 +208,26 @@ void GameManager::loadBoard()
 
 	if (numberOfTooLongRows != 0)
 	{
+		isMapLoaded = false;
+
 		if(numberOfTooLongRows == 1)
-			cout << "ERROR_FOUND_1_ROW_OF_LENGTH_K\n\n";
+			return string("ERROR_FOUND_1_ROW_OF_LENGTH_K");
 		else
-			cout << "ERROR_FOUND_" + std::to_string(numberOfTooLongRows) + "_ROWS_OF_LENGTH_K\n\n";
-		return;
-		//throw MapLoadException("ERROR_FOUND_" + std::to_string(numberOfTooLongRows) + "_ROW_OF_LENGTH_K");
+			return string("ERROR_FOUND_" + std::to_string(numberOfTooLongRows) + "_ROWS_OF_LENGTH_K");
 	}
 
-	cout << "BOARD_STATE_OK\n\n";
+	isMapLoaded = true;
+	return string("BOARD_STATE_OK");
 }
 
 void GameManager::printBoard()
 {
+	if (!isMapLoaded)
+	{
+		cout << "EMPTY_BOARD\n\n";
+		return;
+	}
+
 	char temp = NULL;
 	cout << edgeLength << ' ' << numberOfTriggerPawns << ' ' << numberOfWhitePawns << ' ' << numberOfBlackPawns << '\n';
 	cout << numberOfWhitePawnsInReserve << ' ' << numberOfBlackPawnsInReserve << ' ' << (isWhiteTurn ? 'W' : 'B') << '\n';
@@ -259,23 +248,31 @@ void GameManager::printBoard()
 	}
 	cout << '\n';
 	
-	//for (int i = 0; i < height + 2; i++)
-	//{
-	//	for (int j = 0; j < width + 4; j++)
-	//	{
-	//		temp = board[i][j];
-	//		cout << temp;
-	//	}
-	//	cout << '\n';
-	//}
-	//cout << '\n';
+	/*for (int i = 0; i < height + 2; i++)
+	{
+		for (int j = 0; j < width + 4; j++)
+		{
+			temp = board[i][j];
+			cout << temp;
+		}
+		cout << '\n';
+	}
+	cout << '\n';*/
 }
 
-void GameManager::move()
+string GameManager::move()
 {
+	string query;
+	std::getline(std::cin, query);
+	std::istringstream iss(query);
+	
 	string coords;
-	cin >> coords;
+	string who;
+	string from;
+	string to;
 
+	iss >> coords >> who >> from >> to;
+	
 	int x = coords.find('-');
 	string first = coords.substr(0, x);
 	string second = coords.substr(x + 1, coords.length() - 1);
@@ -292,42 +289,19 @@ void GameManager::move()
 	int maxEndNumber = maxNumber - abs(endLetter - middleLetter);
 
 	if (startLetter > maxLetter || startNumber > maxStartNumber)
-	{
-		cout << "BAD_MOVE_" + first + "_IS_WRONG_INDEX\n\n";
-		return;
-		//throw MoveException("BAD_MOVE_" + first + "_IS_WRONG_INDEX");
-	}
+		return string("BAD_MOVE_" + first + "_IS_WRONG_INDEX");
 	else if (endLetter > maxLetter || endNumber > maxEndNumber)
-	{
-		cout << "BAD_MOVE_" + second + "_IS_WRONG_INDEX\n\n";
-		return;
-		//throw MoveException("BAD_MOVE_" + second + "_IS_WRONG_INDEX");
-	}
+		return string("BAD_MOVE_" + second + "_IS_WRONG_INDEX");
 	else if (((startLetter == 'a' || startLetter == maxLetter) && startNumber > edgeLength + 1) || (startLetter != 'a' && startLetter != maxLetter && startNumber != 1 && startNumber < maxStartNumber))
-	{
-		cout << "BAD_MOVE_" + first + "_IS_WRONG_STARTING_FIELD\n\n";
-		return;
-		//throw MoveException("BAD_MOVE_" + first + "_IS_WRONG_STARTING_FIELD");
-	}
+		return string("BAD_MOVE_" + first + "_IS_WRONG_STARTING_FIELD");
 	else if (endLetter == 'a' || endLetter == maxLetter || endNumber == 1 || endNumber >= maxEndNumber)
-	{
-		cout << "BAD_MOVE_" + second + "_IS_WRONG_DESTINATION_FIELD\n\n";
-		return;
-		//throw MoveException("BAD_MOVE_" + second + "_IS_WRONG_DESTINATION_FIELD");
-	}
+		return string("BAD_MOVE_" + second + "_IS_WRONG_DESTINATION_FIELD");
 	else if (abs(endLetter - startLetter) > 1 || abs(endNumber - startNumber) > 1)
-	{
-		cout << "UNKNOWN_MOVE_DIRECTION\n\n";
-		return;
-		//throw MoveException("UNKNOWN_MOVE_DIRECTION");
-	}
+		return string("UNKNOWN_MOVE_DIRECTION");
 
 	int firstColumn, firstRow, secondColumn, secondRow;
 	getPosition(firstRow, firstColumn, startLetter, startNumber);
 	getPosition(secondRow, secondColumn, endLetter, endNumber);
-
-	//cout << "FIRST ROW: " << firstRow << " FIRST COLUMN: " << firstColumn << "\n";
-	//cout << "SECOND ROW: " << secondRow << " SECOND COLUMN: " << secondColumn << "\n";
 
 	int horizontalDirection = secondColumn - firstColumn;
 	int verticalDirection = secondRow - firstRow;
@@ -347,11 +321,7 @@ void GameManager::move()
 		symbol = board[secondRow + verticalCount][secondColumn + horizontalCount];
 
 		if (symbol == '+')
-		{
-			cout << "BAD_MOVE_ROW_IS_FULL\n\n";
-			return;
-			//throw MoveException("BAD_MOVE_ROW_IS_FULL");
-		}
+			return string("BAD_MOVE_ROW_IS_FULL");
 		else if (symbol == '_')
 			break;
 
@@ -370,6 +340,11 @@ void GameManager::move()
 
 	board[secondRow][secondColumn] = (isWhiteTurn ? 'W' : 'B');
 
+	string message = captureThePawns(who, from, to);
+	if(message != "")
+		return message;
+
+
 	if (isWhiteTurn)
 	{
 		numberOfWhitePawnsInReserve--;
@@ -382,7 +357,7 @@ void GameManager::move()
 	}
 
 	isWhiteTurn = !isWhiteTurn;
-	cout << "MOVE_COMMITTED\n\n";
+	return string("MOVE_COMMITTED");
 }
 
 void GameManager::getPosition(int& x, int& y, int letter, int number)
@@ -402,7 +377,7 @@ void GameManager::getPosition(int& x, int& y, int letter, int number)
 	}
 }
 
-int GameManager::checkRow(int startRow, int startColumn, int horizontalIterator, int verticalIterator)
+int GameManager::checkRow(int startRow, int startColumn, int horizontalIterator, int verticalIterator, bool remove)
 {
 	char temp = NULL;
 	char previous = NULL;
@@ -412,17 +387,48 @@ int GameManager::checkRow(int startRow, int startColumn, int horizontalIterator,
 	{
 		temp = board[startRow][startColumn];
 
-		if (temp == '+')
-			break;
-		else if (temp == previous && temp != '_')
+		if (temp == previous && temp != '_' && temp != '+')
 			numberInRow++;
 		else
 		{
 			if (numberInRow >= numberOfTriggerPawns)
+			{
 				counter++;
+				if (remove)
+				{
+					int tempRow = startRow;
+					int tempColumn = startColumn;
+					char symbol = board[tempRow][tempColumn];
 
+					while (symbol != '_' && symbol != '+')
+					{
+						tempRow += verticalIterator;
+						tempColumn += horizontalIterator;
+						symbol = board[tempRow][tempColumn];
+					}
+
+					tempRow -= verticalIterator;
+					tempColumn -= horizontalIterator;
+					
+					while (true)
+					{
+						symbol = board[tempRow][tempColumn];
+						if(symbol == '_' || symbol == '+')
+							break;
+
+						board[tempRow][tempColumn] = '_';
+						tempRow -= verticalIterator;
+						tempColumn -= horizontalIterator;
+					}
+
+					previous == 'W' ? numberOfWhitePawnsInReserve += numberInRow : numberOfBlackPawnsInReserve += numberInRow;
+				}
+			}
 			numberInRow = 1;
 		}
+
+		if (temp == '+')
+			break;
 
 		previous = temp;
 		startRow += verticalIterator;
@@ -433,4 +439,101 @@ int GameManager::checkRow(int startRow, int startColumn, int horizontalIterator,
 		counter++;
 
 	return counter;
+}
+
+string GameManager::captureThePawns(const string& who, const string& from, const string& to)
+{
+	char symbol = (who != "" ? who[0] - 32 : NULL);
+	
+	int spaceLength = 0;
+	char tempLetter = 'b';
+	int firstRow = 0;
+	int firstColumn = 0;
+	int secondRow = 0;
+	int secondColumn = 0;
+
+	if (from != "")
+	{
+		char firstLetter, secondLetter;
+		int firstNumber, secondNumber;
+
+		firstLetter = from[0];
+		firstNumber = stoi(from.substr(1));
+
+		secondLetter = to[0];
+		secondNumber = stoi(to.substr(1));
+
+
+		getPosition(firstRow, firstColumn, firstLetter, firstNumber);
+		getPosition(secondRow, secondColumn, secondLetter, secondNumber);
+		int horizontalDirection = secondColumn - firstColumn;
+		int horizontalIter = (horizontalDirection > 0) - (horizontalDirection < 0);
+		int verticalDirection = secondRow - firstRow;
+		int verticalIter = (verticalDirection > 0) - (verticalDirection < 0);
+		
+		if(verticalIter == 0)
+			horizontalIter *= 2;
+
+		char temp = NULL;
+		int counter = 1;
+		int howManyInRow = 0;
+
+		while (true)
+		{
+			temp = board[firstRow][firstColumn];
+
+			if (temp == '_' || temp == '+')
+				break;
+
+			if(temp != symbol && counter < numberOfTriggerPawns)
+				return string("WRONG_COLOR_OF_CHOSEN_ROW");
+			else if(temp == symbol)
+				howManyInRow++;
+
+
+			firstRow += verticalIter;
+			firstColumn += horizontalIter;
+			counter++;
+
+			if(firstRow == secondRow && firstColumn == secondColumn && counter < numberOfTriggerPawns)
+				return string("WRONG_INDEX_OF_CHOSEN_ROW");
+		}	
+
+		firstRow -= verticalIter;
+		firstColumn -= horizontalIter;
+		temp = board[firstRow][firstColumn];
+
+		while (temp != '_' && temp != '+')
+		{
+			temp = board[firstRow][firstColumn];
+			board[firstRow][firstColumn] = '_';
+			firstRow -= verticalIter;
+			firstColumn -= horizontalIter;
+		}
+		
+		if(symbol == 'W')
+			numberOfWhitePawnsInReserve += howManyInRow;
+		else
+			numberOfBlackPawnsInReserve += howManyInRow;
+
+		return string("");
+	}
+
+
+	for (int i = 1; i < height; i++)
+	{
+		spaceLength = (i < edgeLength ? edgeLength - i + 2 : i - edgeLength + 2);
+		checkRow(i, spaceLength, 2, 0, true);
+	}
+
+	for (int i = 0; i < height; i++)
+	{
+		symbol = NULL;
+		getPosition(firstRow, firstColumn, tempLetter, 2);
+		checkRow(firstRow, firstColumn, 1, -1, true);
+		checkRow(firstRow, width + 3 - firstColumn, -1, -1, true);
+		tempLetter++;
+	}
+
+	return string("");
 }
